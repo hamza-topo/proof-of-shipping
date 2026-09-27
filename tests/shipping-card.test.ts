@@ -4,6 +4,8 @@ import {
   it,
 } from "vitest";
 
+import { XMLValidator } from "fast-xml-parser";
+
 import {
   renderShippingCard,
 } from "../src/render/shipping-card";
@@ -59,4 +61,24 @@ describe("renderShippingCard", () => {
     expect(svg).toContain("foo&amp;bar");
     expect(svg).not.toContain("foo&bar");
   });
+
+  it("generates valid XML", () => {
+  const svg = renderShippingCard(
+    {
+      releases: 0,
+      mergedPullRequests: 7,
+      totalEvents: 7,
+      latestEvent: null,
+    },
+    {
+      username: "hamza-topo",
+      periodDays: 90,
+      theme: "dark",
+    },
+  );
+
+  expect(
+    XMLValidator.validate(svg),
+  ).toBe(true);
+});
 });
