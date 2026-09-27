@@ -1,7 +1,13 @@
 import * as core from "@actions/core";
 import * as github from "@actions/github";
+
+import { mkdir, writeFile } from "node:fs/promises";
+import { dirname } from "node:path";
+
 import { parseConfig } from "./config";
+import { buildShippingSummary } from "./domain/shipping-summary";
 import { fetchShips } from "./github/github-client";
+import { renderShippingCard } from "./render/shipping-card";
 
 async function run(): Promise<void> {
   try {
@@ -29,6 +35,39 @@ async function run(): Promise<void> {
 
     const mergedPullRequests = shipping.events.filter(
       (event) => event.type === "merged_pull_request",
+    );
+
+    const summary = buildShippingSummary(
+      shipping.events,
+    );
+
+    const svg = renderShippingCard(
+      summary,
+      {
+        username,
+        periodDays: config.periodDays,
+        theme:
+          config.theme === "light"
+            ? "light"
+            : "dark",
+      },
+    );
+
+    await mkdir(
+      dirname(config.outputPath),
+      {
+        recursive: true,
+      },
+    );
+
+    await writeFile(
+      config.outputPath,
+      svg,
+      "utf8",
+    );
+
+    core.info(
+      `Generated ${config.outputPath}`,
     );
 
     core.info(

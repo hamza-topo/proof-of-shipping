@@ -19,3 +19,10 @@ jobs:
         with:
           github-token: ${{ github.token }}
           period-days: "90"
+
+      - name: Verify generated SVG
+        run: |
+          test -s proof-of-shipping.svg
+          echo "SVG generated successfully"
+          ls -lh proof-of-shipping.svg
+          head -n 5 proof-of-shipping.svg
