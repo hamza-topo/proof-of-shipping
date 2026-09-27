@@ -34011,11 +34011,44 @@ function filterShips(releases, periodDays, now = new Date()) {
         .sort((a, b) => new Date(b.publishedAt).getTime() -
         new Date(a.publishedAt).getTime())
         .map((release) => ({
+        type: "release",
         repository: release.repository,
         tag: release.tag,
         name: release.name,
         url: release.url,
         publishedAt: release.publishedAt,
+        occurredAt: release.publishedAt,
+    }));
+}
+
+function filterMergedPullRequests(pullRequests, username, periodDays, now = new Date()) {
+    const cutoff = new Date(now);
+    cutoff.setUTCDate(cutoff.getUTCDate() - periodDays);
+    const normalizedUsername = username.toLowerCase();
+    return pullRequests
+        .filter((pullRequest) => {
+        if (!pullRequest.mergedAt ||
+            !pullRequest.author) {
+            return false;
+        }
+        if (pullRequest.author.toLowerCase() !==
+            normalizedUsername) {
+            return false;
+        }
+        const mergedAt = new Date(pullRequest.mergedAt);
+        return (mergedAt >= cutoff &&
+            mergedAt <= now);
+    })
+        .sort((a, b) => new Date(b.mergedAt).getTime() -
+        new Date(a.mergedAt).getTime())
+        .map((pullRequest) => ({
+        type: "merged_pull_request",
+        repository: pullRequest.repository,
+        number: pullRequest.number,
+        title: pullRequest.title,
+        url: pullRequest.url,
+        mergedAt: pullRequest.mergedAt,
+        occurredAt: pullRequest.mergedAt,
     }));
 }
 
@@ -34029,6 +34062,7 @@ async function fetchShips(token, username, periodDays, now = new Date()) {
     const eligibleRepositories = repositories.filter((repository) => !repository.private &&
         !repository.fork);
     const releases = [];
+    const pullRequests = [];
     for (const repository of eligibleRepositories) {
         const repositoryReleases = await octokit.paginate(octokit.rest.repos.listReleases, {
             owner: username,
@@ -34046,10 +34080,34 @@ async function fetchShips(token, username, periodDays, now = new Date()) {
                 publishedAt: release.published_at,
             });
         }
+        const repositoryPullRequests = await octokit.paginate(octokit.rest.pulls.list, {
+            owner: username,
+            repo: repository.name,
+            state: "closed",
+            sort: "updated",
+            direction: "desc",
+            per_page: 100,
+        });
+        for (const pullRequest of repositoryPullRequests) {
+            pullRequests.push({
+                repository: repository.name,
+                number: pullRequest.number,
+                title: pullRequest.title,
+                url: pullRequest.html_url,
+                author: pullRequest.user?.login ?? null,
+                mergedAt: pullRequest.merged_at,
+            });
+        }
     }
+    const events = [
+        ...filterShips(releases, periodDays, now),
+        ...filterMergedPullRequests(pullRequests, username, periodDays, now),
+    ];
+    events.sort((a, b) => new Date(b.occurredAt).getTime() -
+        new Date(a.occurredAt).getTime());
     return {
         username,
-        ships: filterShips(releases, periodDays, now),
+        events,
     };
 }
 
@@ -34060,9 +34118,16 @@ async function run() {
         info(`Analyzing shipping activity for @${username}`);
         info(`Period: ${config.periodDays} days`);
         const shipping = await fetchShips(config.githubToken, username, config.periodDays);
-        info(`Found ${shipping.ships.length} shipped release(s).`);
-        for (const ship of shipping.ships) {
-            info(`🚀 ${ship.repository} ${ship.tag} — ${ship.publishedAt}`);
+        const releases = shipping.events.filter((event) => event.type === "release");
+        const mergedPullRequests = shipping.events.filter((event) => event.type === "merged_pull_request");
+        info(`Found ${releases.length} release(s).`);
+        info(`Found ${mergedPullRequests.length} merged pull request(s).`);
+        for (const event of shipping.events) {
+            if (event.type === "release") {
+                info(`🚀 ${event.repository} ${event.tag} — ${event.occurredAt}`);
+                continue;
+            }
+            info(`✓ ${event.repository} #${event.number} — ${event.title} — ${event.occurredAt}`);
         }
     }
     catch (error) {

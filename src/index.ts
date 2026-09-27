@@ -23,13 +23,33 @@ async function run(): Promise<void> {
       config.periodDays,
     );
 
-    core.info(
-      `Found ${shipping.ships.length} shipped release(s).`,
+    const releases = shipping.events.filter(
+      (event) => event.type === "release",
     );
 
-    for (const ship of shipping.ships) {
+    const mergedPullRequests = shipping.events.filter(
+      (event) => event.type === "merged_pull_request",
+    );
+
+    core.info(
+      `Found ${releases.length} release(s).`,
+    );
+
+    core.info(
+      `Found ${mergedPullRequests.length} merged pull request(s).`,
+    );
+
+    for (const event of shipping.events) {
+      if (event.type === "release") {
+        core.info(
+          `🚀 ${event.repository} ${event.tag} — ${event.occurredAt}`,
+        );
+
+        continue;
+      }
+
       core.info(
-        `🚀 ${ship.repository} ${ship.tag} — ${ship.publishedAt}`,
+        `✓ ${event.repository} #${event.number} — ${event.title} — ${event.occurredAt}`,
       );
     }
   } catch (error) {

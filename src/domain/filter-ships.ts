@@ -1,4 +1,4 @@
-import type { Ship } from "./ship";
+import type { ReleaseShippingEvent } from "./shipping-event";
 
 export interface GitHubRelease {
   repository: string;
@@ -14,7 +14,7 @@ export function filterShips(
   releases: GitHubRelease[],
   periodDays: number,
   now = new Date(),
-): Ship[] {
+): ReleaseShippingEvent[] {
   const cutoff = new Date(now);
   cutoff.setUTCDate(cutoff.getUTCDate() - periodDays);
 
@@ -38,10 +38,12 @@ export function filterShips(
         new Date(a.publishedAt!).getTime(),
     )
     .map((release) => ({
+      type: "release" as const,
       repository: release.repository,
       tag: release.tag,
       name: release.name,
       url: release.url,
       publishedAt: release.publishedAt!,
+      occurredAt: release.publishedAt!,
     }));
 }
