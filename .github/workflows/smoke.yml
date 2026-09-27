@@ -26,3 +26,9 @@ jobs:
           echo "SVG generated successfully"
           ls -lh proof-of-shipping.svg
           head -n 5 proof-of-shipping.svg
+      - name: Upload SVG preview
+        uses: actions/upload-artifact@v7
+        with:
+          name: proof-of-shipping-preview
+          path: proof-of-shipping.svg
+          if-no-files-found: error
