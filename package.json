@@ -1,0 +1,24 @@
+{
+  "name": "proof-of-shipping",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "vitest run",
+    "typecheck": "tsc --noEmit",
+    "build": "ncc build src/index.ts -o dist --minify",
+    "check": "npm run typecheck && npm test && npm run build"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@actions/core": "^3.0.1"
+  },
+  "devDependencies": {
+    "@types/node": "^26.6.3",
+    "@vercel/ncc": "^0.45.0",
+    "typescript": "5.9.3",
+    "vitest": "^5.0.2"
+  }
+}

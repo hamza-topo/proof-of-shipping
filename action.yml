@@ -1,0 +1,31 @@
+name: "Proof of Shipping"
+description: "Show what you ship, not how much you commit."
+author: "Proof of Shipping"
+
+inputs:
+  github-token:
+    description: "GitHub token used to read public shipping activity"
+    required: true
+
+  period-days:
+    description: "Number of days to analyze"
+    required: false
+    default: "90"
+
+  output-path:
+    description: "Path of the generated SVG"
+    required: false
+    default: "proof-of-shipping.svg"
+
+  theme:
+    description: "Card theme"
+    required: false
+    default: "dark"
+
+runs:
+  using: "node24"
+  main: "dist/index.js"
+
+branding:
+  icon: "package"
+  color: "blue"
