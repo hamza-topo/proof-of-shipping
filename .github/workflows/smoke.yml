@@ -4,7 +4,7 @@ on:
   workflow_dispatch:
 
 permissions:
-  contents: write
+  contents: read
 
 jobs:
   smoke:
@@ -26,19 +26,6 @@ jobs:
           echo "SVG generated successfully"
           ls -lh proof-of-shipping.svg
           head -n 5 proof-of-shipping.svg
-      - name: Commit generated SVG
-        run: |
-          git config user.name "github-actions[bot]"
-          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-
-          git add proof-of-shipping.svg
-
-          if git diff --cached --quiet; then
-            echo "No SVG changes to commit"
-          else
-            git commit -m "chore: update proof of shipping card"
-            git push
-          fi
       - name: Upload SVG preview
         uses: actions/upload-artifact@v7
         with:
