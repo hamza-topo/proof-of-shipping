@@ -34,9 +34,11 @@ describe("renderShippingCard", () => {
 
     expect(svg).toContain("Proof of Shipping");
     expect(svg).toContain("@hamza-topo");
-    expect(svg).toContain("Merged PRs");
+    expect(svg).toContain("MERGED PRS");
     expect(svg).toMatch(/>\s*7\s*</);
-    expect(svg).toContain("petmingle #101");
+    expect(svg).toContain("petmingle · PR #101");
+    expect(svg).toContain("Example");
+    expect(svg).toContain("Sep 27, 2026");
   });
 
   it("escapes XML-sensitive values", () => {
