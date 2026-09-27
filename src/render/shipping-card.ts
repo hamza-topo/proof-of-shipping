@@ -361,20 +361,30 @@ export function renderShippingCard(
 
   <!-- Footer -->
 
-  <line
+    <line
     x1="24"
-    y1="275"
+    y1="280"
     x2="496"
-    y2="275"
+    y2="280"
     stroke="${border}"
-  />
+    />
+
+  <text
+    x="24"
+    y="300"
+    class="footer"
+  >
 
   <text
     x="24"
     y="291"
     class="footer"
   >
-    ${summary.totalEvents} shipping event(s) detected
+    ${summary.totalEvents} shipping ${
+  summary.totalEvents === 1
+    ? "event"
+    : "events"
+}
   </text>
 </svg>
 `.trim();
