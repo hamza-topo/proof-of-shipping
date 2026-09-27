@@ -146,8 +146,8 @@ export function renderShippingCard(
 <svg
   xmlns="http://www.w3.org/2000/svg"
   width="520"
-  height="300"
-  viewBox="0 0 520 300"
+  height="310"
+  viewBox="0 0 520 310"
   role="img"
   aria-label="Proof of Shipping for ${username}"
 >
@@ -155,7 +155,7 @@ export function renderShippingCard(
     x="0.5"
     y="0.5"
     width="519"
-    height="299"
+    height="309"
     rx="14"
     fill="${background}"
     stroke="${border}"
@@ -361,30 +361,24 @@ export function renderShippingCard(
 
   <!-- Footer -->
 
-    <line
+  <line
     x1="24"
     y1="280"
     x2="496"
     y2="280"
     stroke="${border}"
-    />
+  />
 
   <text
     x="24"
     y="300"
     class="footer"
   >
-
-  <text
-    x="24"
-    y="291"
-    class="footer"
-  >
     ${summary.totalEvents} shipping ${
-  summary.totalEvents === 1
-    ? "event"
-    : "events"
-}
+      summary.totalEvents === 1
+        ? "event"
+        : "events"
+    }
   </text>
 </svg>
 `.trim();
