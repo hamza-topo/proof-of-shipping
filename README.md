@@ -180,4 +180,4 @@ More shipping signals can be added in future versions.
 
 ## License
 
-License information will be added before the Marketplace release.
+[MIT License](./LICENSE)
