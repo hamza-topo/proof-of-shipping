@@ -1,5 +1,7 @@
 import * as core from "@actions/core";
+import * as github from "@actions/github";
 import { parseConfig } from "./config";
+import { fetchShips } from "./github/github-client";
 
 async function run(): Promise<void> {
   try {
@@ -10,13 +12,31 @@ async function run(): Promise<void> {
       core.getInput("theme"),
     );
 
-    core.info("Proof of Shipping");
+    const username = github.context.repo.owner;
+
+    core.info(`Analyzing shipping activity for @${username}`);
     core.info(`Period: ${config.periodDays} days`);
-    core.info(`Output: ${config.outputPath}`);
-    core.info(`Theme: ${config.theme}`);
+
+    const shipping = await fetchShips(
+      config.githubToken,
+      username,
+      config.periodDays,
+    );
+
+    core.info(
+      `Found ${shipping.ships.length} shipped release(s).`,
+    );
+
+    for (const ship of shipping.ships) {
+      core.info(
+        `🚀 ${ship.repository} ${ship.tag} — ${ship.publishedAt}`,
+      );
+    }
   } catch (error) {
     core.setFailed(
-      error instanceof Error ? error.message : "Unknown error",
+      error instanceof Error
+        ? error.message
+        : "Unknown error",
     );
   }
 }
